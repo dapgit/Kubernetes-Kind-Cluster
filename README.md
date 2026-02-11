@@ -1,6 +1,6 @@
 # End-to-End Cluster using Kind
 
-This document serves as a comprehensive reference for creating, configuring, troubleshooting, and scaling a production-like Kubernetes cluster locally using **Kind** (Kubernetes in Docker).
+This document serves as a comprehensive reference for creating, configuring, troubleshooting, and scaling a production-like Kubernetes cluster locally using **Kind** (Kubernetes using Docker).
 
 ## 1. Architecture Overview
 We built a cluster designed to simulate a real-world environment on a local machine.
@@ -32,8 +32,8 @@ Creating cluster "my-cluster" ...
  ✓ Joining worker nodes 🚜 
 Set kubectl context to "kind-my-cluster"
 
-3. Networking Setup (The "Plumbing")
-A. Ingress Controller (NGINX)
+## 3. Networking Setup (The "Plumbing")
+### A. Ingress Controller (NGINX)
 
 We installed NGINX and patched it to run on the Control Plane. This resolved the "Connection Reset" error by ensuring the Ingress pod runs on the exact node mapped to Docker's port 80.
 
@@ -44,7 +44,7 @@ Patch (Critical Fix): Without this fix, the Ingress controller may schedule on w
 
 kubectl patch deployment ingress-nginx-controller -n ingress-nginx --type='json' -p='[{"op": "add", "path": "/spec/template/spec/nodeSelector", "value": {"ingress-ready": "true"}}]'
 
-B. Load Balancer (MetalLB)
+### B. Load Balancer (MetalLB)
 
 We installed MetalLB to provide "Real IP" functionality within the Docker network.
 
@@ -56,7 +56,7 @@ IP Configuration: The IP range was derived from the Docker bridge network: docke
 # Apply your specific IPAddressPool and L2Advertisement
 kubectl apply -f yaml/metallb-config.yaml
 
-4. Application Deployment & Scaling
+## 4. Application Deployment & Scaling
 
 We transitioned from a simple echo server to a dynamic application (agnhost) to test load balancing across multiple replicas.
 
@@ -145,7 +145,7 @@ Bash
 # Apply your specific IPAddressPool and L2Advertisement
 kubectl apply -f yaml/metallb-config.yaml
 
-4. Application Deployment & Scaling
+## 4. Application Deployment & Scaling
 
 We transitioned from a simple echo server to a dynamic application (agnhost) to test load balancing across multiple replicas.
 
@@ -159,7 +159,7 @@ Bash
 
 kubectl apply -f yaml/scaling-test.yaml
 
-5. Troubleshooting Log
+## 5. Troubleshooting Log
 
 During setup, we encountered a Connection Reset error when accessing http://localhost/foo. Below is the diagnostic path used to resolve it.
 Diagnostic Step	Action Taken	Result	Conclusion
@@ -168,7 +168,8 @@ Diagnostic Step	Action Taken	Result	Conclusion
 3. Node Location	kubectl get pods -o wide	Failed	The Ingress Controller was running on a Worker Node.
 
 Root Cause: Docker only mapped Port 80 to the Control Plane. Traffic hitting the control plane found no listener because NGINX was on a different node. Resolution: Patched NGINX with a nodeSelector to force it onto the Control Plane.
-6. Verification & Usage
+
+## 6. Verification & Usage
 Method 1: Via Ingress (Domain Style)
 
     URL: http://localhost/foo
@@ -188,7 +189,7 @@ Test Scaling (Round Robin)
 Run a loop to hit the LoadBalancer IP repeatedly to see traffic distribute across replicas:
 for i in {1..10}; do curl 172.18.0.150:8080; echo; done
 
-7. Cleanup
+## 7. Cleanup
 
 To remove the entire environment and free up Docker resources:
 kind delete cluster --name my-cluster

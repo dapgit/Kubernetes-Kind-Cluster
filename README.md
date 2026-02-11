@@ -14,12 +14,12 @@ This document serves as a comprehensive reference for creating, configuring, tro
 ## 2. Cluster Provisioning
 
   ## Prerequisites
-     #### • Docker Desktop / Docker Engine
-     #### • Kind 
-     #### • Kubectl
+  #### • Docker Desktop / Docker Engine
+  #### • Kind 
+  #### • Kubectl
      
   ## Configuration (kind-config.yaml)
-     The configuration file kind-cluster-config.yaml creates the cluster, maps local ports to the container and labels the control plane for Ingress traffic.
+  The configuration file kind-cluster-config.yaml creates the cluster, maps local ports to the container and labels the control plane for Ingress traffic.
 
 ## 3. Networking Setup (The "Plumbing")
 
